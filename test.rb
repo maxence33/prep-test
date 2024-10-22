@@ -97,7 +97,8 @@ class Test
   end
 
   def next_question
-    @curr_inx += 1 if @curr_inx < 49
+    @curr_inx += 1 
+    raise Exit if @curr_inx == 49
     clean_the_screen
     question = questions[@curr_inx]
     puts question
