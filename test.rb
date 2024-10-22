@@ -6,32 +6,39 @@ class Test
 
   DURATION = 60 * 90
 
+
+
   class Exit < StandardError; end
 
   class EndOfTime < StandardError; end
 
   def initialize(type: :silver, language: :en, start_position: 1, test_length: 50)
+    
     @test_start = start_position-1
     @test_length = test_length-1
+
+    # Will identify the answers line, scan the results and transpile into an array 
+    # (a) (b) => [0, 2]
+    # (A) (C) => [0, 3]
+    answer_parser = proc {
+      |answer| answer.slice(/^\*\*A\d+[:.].*/).scan(/\(([a-zA-Z])\)/).flatten(1).map { |i|
+          i.downcase.ord - "a".ord
+        }
+    }
+
     case type
     when :silver
       @questions = File.read("silver#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
       @answers = File.read("silver_answers#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
-      @answers.map! do |ans|
-        ans.slice(/^\*\*A\d+[:.].*/).scan(/\(([a-z])\)/).flatten(1).map { |i|
-          i.ord - "a".ord
-        }
+      @answers.map! do |answer|
+        answer_parser.call ans
       end
-      @test_symbol = "a"
     when :gold
       @questions = File.read("gold#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
       @answers = File.read("gold_answers#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
-      @answers.map! do |ans|
-        ans.slice(/^\*\*A\d+:.*/).scan(/\(([A-Z])\)/).flatten(1).map { |i|
-          i.ord - "A".ord
-        }
+      @answers.map! do |answer|
+        answer_parser.call ans
       end
-      @test_symbol = "A"
     else
       raise StandardError, "test not found"
     end
@@ -92,7 +99,7 @@ class Test
     question = questions[@curr_inx]
     puts question
     if @user_answers[@curr_inx]
-      prev_answ = @user_answers[@curr_inx].map { |i| (@test_symbol.ord + i).chr }.join(",")
+      prev_answ = @user_answers[@curr_inx].map { |i| ("a".ord + i).chr }.join(",")
       puts "## Your previously entered answer is **(#{prev_answ})**"
     end
   end
@@ -141,7 +148,7 @@ class Test
     in /\Ahowto\z/i
       :howto
     else
-      user_answer.strip.split(",").map { |e| e.ord - @test_symbol.ord }
+      user_answer.strip.split(",").map { |e| e.downcase.ord - "a".ord }
     end
   end
 
