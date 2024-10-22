@@ -17,26 +17,31 @@ class Test
     @test_start = start_position-1
     @test_length = test_length-1
 
+    # Basically we split both questions and answers file based on ^-------------
+    file_splitter = proc { |file_name|
+      File.read("#{file_name}#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
+    }
+
     # Will identify the answers line, scan the results and transpile into an array 
     # (a) (b) => [0, 2]
     # (A) (C) => [0, 3]
-    answer_parser = proc {
-      |answer| answer.slice(/^\*\*A\d+[:.].*/).scan(/\(([a-zA-Z])\)/).flatten(1).map { |i|
+    answer_parser = proc { |answer| 
+      answer.slice(/^\*\*A\d+[:.].*/).scan(/\(([a-zA-Z])\)/).flatten(1).map { |i|
           i.downcase.ord - "a".ord
         }
     }
 
     case type
     when :silver
-      @questions = File.read("silver#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
-      @answers = File.read("silver_answers#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
-      @answers.map! do |answer|
+      @questions = file_splitter.call "silver"
+      @answers = file_splitter.call "silver_answers"
+      @answers.map! do |ans|
         answer_parser.call ans
       end
     when :gold
-      @questions = File.read("gold#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
-      @answers = File.read("gold_answers#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
-      @answers.map! do |answer|
+      @questions = file_splitter.call "gold"
+      @answers = file_splitter.call "gold_answers"
+      @answers.map! do |ans|
         answer_parser.call ans
       end
     else
