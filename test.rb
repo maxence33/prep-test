@@ -117,7 +117,7 @@ class Test
     case user_answer
     in /exit/i
       puts "**Are you sure want finish exam? (Enter `yes` to exit)**"
-      raise Exit if gets.match?(/\A(yes|y)\z/i)
+      raise Exit if gets.match?(/(yes|y)/i)
 
       :repeat
     in /\A(n|next|continue)\z/i
@@ -131,7 +131,7 @@ class Test
       :repeat
     in /\A(stop|finish|end\z)/i
       puts "**Are you sure want finish exam? (Enter `yes` to exit)**"
-      raise Exit if gets.match?(/\A(yes|y)\z/i)
+      raise Exit if gets.match?(/(yes|y)/i)
 
       :repeat
     in /\A(help|h)\z/i
@@ -159,9 +159,11 @@ class Test
     correct_answers_count = result.count { |e| 1 if e }
     numbered_of_answered_questions = result.compact.count
     correct_answers_percent = correct_answers_count.to_f / questions.length * 100
+    
     puts "Your result is **#{correct_answers_count} out of #{questions.length}** total questions"
     puts "You answered correctly **#{correct_answers_count} out of #{numbered_of_answered_questions}** answered questions"
     puts "Percent of **correct answers is #{correct_answers_percent.round(2)}%**"
+
     if correct_answers_count >= 75.0
       puts "## You've passed the test exam"
     else
