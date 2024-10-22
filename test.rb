@@ -10,10 +10,10 @@ class Test
 
   class EndOfTime < StandardError; end
 
-  def initialize(type: :silver, language: :en, start_position: 1, test_length: 50)
+  def initialize(type: :silver, language: :en, start_position: 1, end_position: 50)
     
-    @test_start = start_position-1
-    @test_length = test_length-1
+    @start = start_position-1
+    @end = end_position-1
 
     # Basically we split both questions and answers file based on ^------------- string
     file_splitter = proc { |file_name|
@@ -194,17 +194,18 @@ class Test
   end
 end
 
-test_type = ARGV[0]&.to_sym || :silver
-test_language = ARGV[1]&.to_sym || :en
-start_position = ARGV[2]&.to_i || 1
-test_length = ARGV[3]&.to_i || 50
-# need validate ARGV[2..3]
+positional_args = ARGV.select{|arg| !arg.match?(/=/)}
+test_type = positional_args.fetch(0) {:silver}.to_sym 
+test_language = positional_args.fetch(1) {:en}.to_sym 
 
+keyworded_args = ARGV.select{|arg| arg.match?(/=/)}.map{|ary| ary.split("=")}.to_h
+start_position = keyworded_args.fetch("start") {1}
+end_position = keyworded_args.fetch("start") {50}
 
 ARGV.clear
 if test_type.match?("help")
   puts TTY::Markdown.parse(File.read("test_help.md")).to_s
 else
-  test = Test.new(type: test_type, language: test_language, start_position: start_position, test_length: test_length)
+  test = Test.new(type: test_type, language: test_language, start_position: start_position, end_position: end_position)
   test.start
 end
