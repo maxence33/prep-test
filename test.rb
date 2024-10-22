@@ -17,7 +17,7 @@ class Test
     @test_start = start_position-1
     @test_length = test_length-1
 
-    # Basically we split both questions and answers file based on ^-------------
+    # Basically we split both questions and answers file based on ^------------- string
     file_splitter = proc { |file_name|
       File.read("#{file_name}#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
     }
@@ -160,9 +160,9 @@ class Test
   def calc_and_print_result(result)
     # p @result
     correct_answers_count = result.count { |e| 1 if e }
-    correct_answers_percecnt = correct_answers_count.to_f / questions.length * 100
+    correct_answers_percent = correct_answers_count.to_f / questions.length * 100
     puts "Your result is **#{correct_answers_count} out of #{questions.length}**"
-    puts "Percent of **correct answers is #{correct_answers_percecnt.round(2)}%**"
+    puts "Percent of **correct answers is #{correct_answers_percent.round(2)}%**"
     if correct_answers_count >= 75.0
       puts "## You've passed the test exam"
     else
