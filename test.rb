@@ -157,11 +157,13 @@ class Test
 
   def calc_and_print_result(result)
     correct_answers_count = result.count { |e| 1 if e }
+    correct_answers_ids = result.map.with_index{ |e,i| !e ? i : nil }.compact
     numbered_of_answered_questions = result.compact.count
     correct_answers_percent = correct_answers_count.to_f / questions.length * 100
     
     puts "Your result is **#{correct_answers_count} out of #{questions.length}** total questions"
     puts "You answered correctly **#{correct_answers_count} out of #{numbered_of_answered_questions}** answered questions"
+    puts "You failed these questions: **#{correct_answers_ids.join(", ")}**."
     puts "Percent of **correct answers is #{correct_answers_percent.round(2)}%**"
 
     if correct_answers_count >= 75.0
