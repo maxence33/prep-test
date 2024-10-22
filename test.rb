@@ -16,7 +16,7 @@ class Test
       @questions = File.read("silver#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
       @answers = File.read("silver_answers#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
       @answers.map! do |ans|
-        ans.slice(/^\*\*A\d+:.*/).scan(/\(([a-z])\)/).flatten(1).map { |i|
+        ans.slice(/^\*\*A\d+[:.].*/).scan(/\(([a-z])\)/).flatten(1).map { |i|
           i.ord - "a".ord
         }
       end
