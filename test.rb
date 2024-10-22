@@ -10,7 +10,9 @@ class Test
 
   class EndOfTime < StandardError; end
 
-  def initialize(type: :silver, language: :en)
+  def initialize(type: :silver, language: :en, start_position: 1, test_length: 50)
+    @test_start = start_position-1
+    @test_length = test_length-1
     case type
     when :silver
       @questions = File.read("silver#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
@@ -144,6 +146,7 @@ class Test
   end
 
   def calc_and_print_result(result)
+    # p @result
     correct_answers_count = result.count { |e| 1 if e }
     correct_answers_percecnt = correct_answers_count.to_f / questions.length * 100
     puts "Your result is **#{correct_answers_count} out of #{questions.length}**"
@@ -178,11 +181,15 @@ end
 
 test_type = ARGV[0]&.to_sym || :silver
 test_language = ARGV[1]&.to_sym || :en
+start_position = ARGV[2] || 1
+test_length = ARGV[3] || 50
+# need validate ARGV[2..3]
+
 
 ARGV.clear
 if test_type.match?("help")
   puts TTY::Markdown.parse(File.read("test_help.md")).to_s
 else
-  test = Test.new(type: test_type, language: test_language)
+  test = Test.new(type: test_type, language: test_language, start_position: start_position, test_length: test_length)
   test.start
 end
