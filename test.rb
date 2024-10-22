@@ -6,8 +6,6 @@ class Test
 
   DURATION = 60 * 90
 
-
-
   class Exit < StandardError; end
 
   class EndOfTime < StandardError; end
@@ -119,7 +117,7 @@ class Test
     case user_answer
     in /exit/i
       puts "**Are you sure want finish exam? (Enter `yes` to exit)**"
-      raise Exit if gets.match?(/yes/i)
+      raise Exit if gets.match?(/\A(yes|y)\z/i)
 
       :repeat
     in /\A(n|next|continue)\z/i
@@ -133,7 +131,7 @@ class Test
       :repeat
     in /\A(stop|finish|end\z)/i
       puts "**Are you sure want finish exam? (Enter `yes` to exit)**"
-      raise Exit if gets.match?(/yes/i)
+      raise Exit if gets.match?(/\A(yes|y)\z/i)
 
       :repeat
     in /\A(help|h)\z/i
