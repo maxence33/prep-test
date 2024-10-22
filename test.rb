@@ -192,8 +192,8 @@ end
 
 test_type = ARGV[0]&.to_sym || :silver
 test_language = ARGV[1]&.to_sym || :en
-start_position = ARGV[2] || 1
-test_length = ARGV[3] || 50
+start_position = ARGV[2]&.to_i || 1
+test_length = ARGV[3]&.to_i || 50
 # need validate ARGV[2..3]
 
 
