@@ -49,6 +49,11 @@ class Test
     @last_printed_lines_count = 0
   end
 
+  Signal.trap("INT") do
+    puts "**Are you sure want to quit? (Enter `yes` to exit)**"
+    raise Exit if gets.match?(/(yes|y)/i)
+  end
+
   def start
     clean_the_screen
     print_howto
