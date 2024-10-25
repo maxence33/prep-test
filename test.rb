@@ -12,8 +12,9 @@ class Test
 
   def initialize(type: :silver, language: :en, start_position: 1, end_position: 50)
     
-    @start = start_position-1
-    @end = end_position-1
+    @start_pos = start_position
+    @end_pos = end_position
+    validate_positions
 
     # Basically we split both questions and answers file based on ^------------- string
     file_reader = proc { |file_name|
@@ -69,7 +70,7 @@ class Test
   private
 
   def exam
-    @curr_inx = -1
+    @curr_inx = @start_pos-2
     @result = Array.new(50)
     @user_answers = Array.new(50)
     loop do
@@ -98,7 +99,7 @@ class Test
   end
 
   def show_question
-    raise Exit if @curr_inx == 49
+    raise Exit if @curr_inx == @end_pos 
     clean_the_screen
     question = questions[@curr_inx]
     puts question
@@ -126,7 +127,7 @@ class Test
     in /\A(p|previous|prev\z)/i
       :prev
     in /\Agoto (\d+)\z/
-      return :repeat unless $1.to_i.between?(1, 50)
+      return :repeat unless $1.to_i.between?(@start_pos, @end_pos)
 
       @curr_inx = $1.to_i - 1
       :repeat
@@ -199,6 +200,14 @@ class Test
   def puts(string)
     Kernel.puts TTY::Markdown.parse(string).to_s
   end
+
+  def validate_positions
+    raise ArgumentError, "Start position must be less than end position." if @start_pos >= @end_pos
+
+    unless (1..50).include?(@start_pos) && (1..50).include?(@end_pos)
+      raise ArgumentError, "Positions must be between 1 and 50."
+    end
+  end
 end
 
 positional_args = ARGV.select{|arg| !arg.match?(/=/)}
@@ -206,8 +215,8 @@ test_type = positional_args.fetch(0) {:silver}.to_sym
 test_language = positional_args.fetch(1) {:en}.to_sym 
 
 keyworded_args = ARGV.select{|arg| arg.match?(/=/)}.map{|ary| ary.split("=")}.to_h
-start_position = keyworded_args.fetch("start") {1}
-end_position = keyworded_args.fetch("start") {50}
+start_position = keyworded_args.fetch("start") {1}.to_i
+end_position = keyworded_args.fetch("end") {50}.to_i
 
 ARGV.clear
 if test_type.match?("help")
