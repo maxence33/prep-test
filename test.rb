@@ -16,7 +16,7 @@ class Test
     @end = end_position-1
 
     # Basically we split both questions and answers file based on ^------------- string
-    file_splitter = proc { |file_name|
+    file_reader = proc { |file_name|
       File.read("#{file_name}#{(language == :en) ? "" : "_ja"}.md").split(/^-------------.*\n/)[0..49]
     }
 
@@ -29,22 +29,12 @@ class Test
         }
     }
 
-    case type
-    when :silver
-      @questions = file_splitter.call "silver"
-      @answers = file_splitter.call "silver_answers"
-      @answers.map! do |ans|
-        answer_parser.call ans
-      end
-    when :gold
-      @questions = file_splitter.call "gold"
-      @answers = file_splitter.call "gold_answers"
-      @answers.map! do |ans|
-        answer_parser.call ans
-      end
-    else
-      raise StandardError, "test not found"
+    @questions = file_reader.call type
+    @answers = file_reader.call "#{type}_answers"
+    @answers.map! do |ans|
+      answer_parser.call ans
     end
+    
     @howto = File.read("test_readme.md")
     @last_printed_lines_count = 0
   end
@@ -162,6 +152,12 @@ class Test
   end
 
   def calc_and_print_result(result)
+    
+    if !result
+      puts "No result available, you haven't answered any question" 
+      return
+    end
+
     correct_answers_count = result.count { |e| 1 if e }
     correct_answers_ids = result.map.with_index{ |e,i| !e ? i : nil }.compact
     numbered_of_answered_questions = result.compact.count
