@@ -37,11 +37,16 @@ class Test
     
     @howto = File.read("test_readme.md")
     @last_printed_lines_count = 0
+
   end
 
   Signal.trap("INT") do
-    puts "**Are you sure want to quit? (Enter `yes` to exit)**"
-    raise Exit if gets.match?(/(yes|y)/i)
+    puts "Are you sure want to quit? (Enter `yes` to exit)"
+    if gets.match?(/(yes|y)/i)
+      raise Exit
+    else
+      puts "Back to Test - Type your answer"
+    end
   end
 
   def start
@@ -68,7 +73,8 @@ class Test
     @result = Array.new(50)
     @user_answers = Array.new(50)
     loop do
-      next_question
+      @curr_inx += 1 
+      show_question
       user_input = get_user_input
       case user_input
       when :repeat
@@ -91,8 +97,7 @@ class Test
     end
   end
 
-  def next_question
-    @curr_inx += 1 
+  def show_question
     raise Exit if @curr_inx == 49
     clean_the_screen
     question = questions[@curr_inx]
